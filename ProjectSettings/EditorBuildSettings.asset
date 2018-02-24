@@ -6,14 +6,5 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Demo/BlockBreaker/_Scene/BlockBreakerLevel.unity
+    path: Assets/Game/Demo/BlockBreaker/_Scene/BlockBreaker.unity
     guid: 9e60eafbc3c5b4b5db2e18805b012502
-  - enabled: 1
-    path: Assets/Demo/BlockBreaker/_Scene/BlockBreakerLose.unity
-    guid: afcd243e934e848d19117d9a432b5561
-  - enabled: 1
-    path: Assets/Demo/BlockBreaker/_Scene/BlockBreakerStart.unity
-    guid: c3acb3db249564df18df4747ed149e0a
-  - enabled: 1
-    path: Assets/Demo/BlockBreaker/_Scene/BlockBreakerWin.unity
-    guid: cbc343d11ae6b4c6a86f8f1edc31ad58
