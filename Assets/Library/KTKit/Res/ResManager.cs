@@ -851,5 +851,43 @@ public class ResManager : MonoBehaviour
 		}
 		www.Dispose();
 	}
+
+	public void LoadSpriteFromPrefab (string url, Action<Sprite> onLoaded, CallbackType.CallbackV onLoadFailed = null) {
+		GameObject prefabObject = Resources.Load<GameObject> (url);
+		if (null != prefabObject) {
+			GameObject spriteObject = GameObject.Instantiate (prefabObject);
+			if (null != spriteObject) {
+				Sprite sprite = spriteObject.GetComponent<SpriteRenderer> ().sprite;
+				if (null != onLoaded) {
+					onLoaded (sprite);
+				}
+				return;
+			}
+		}
+		if (null != onLoadFailed) {
+			onLoadFailed ();
+		}
+	}
+
+	public void LoadSpriteFromResourceAsync (string path, Action<Sprite> onLoaded, CallbackType.CallbackV onLoadFailed = null) {
+		StartCoroutine (LoadSpriteFromResourceAsyncRequest (path, onLoaded, onLoadFailed));
+	}
+
+	private IEnumerator LoadSpriteFromResourceAsyncRequest (string path, Action<Sprite> onLoaded, CallbackType.CallbackV onLoadFailed = null) {
+		ResourceRequest request = Resources.LoadAsync (path);
+		yield return request;
+		if (null == request.asset) {
+			if (null != onLoadFailed) {
+				onLoadFailed ();
+			}
+		} else {
+			Texture2D t = request.asset as Texture2D;
+			t.wrapMode = TextureWrapMode.Clamp;
+			Sprite sprite = Sprite.Create (t, new Rect (0, 0, t.width, t.height), Vector2.one * 0.5f, 100f, 0, SpriteMeshType.FullRect);
+			if (null != onLoaded) {
+				onLoaded (sprite);
+			}
+		}
+	}
 	#endregion
 }
