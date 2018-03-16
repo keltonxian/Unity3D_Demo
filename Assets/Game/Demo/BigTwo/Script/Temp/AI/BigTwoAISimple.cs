@@ -7,17 +7,16 @@ public class BigTwoAISimple : BigTwoAI {
 	public override string GetPlayCommand (List<BigTwoPoker> currentHand, BigTwoDeck deck) {
 		List<BigTwoPoker> currentSet = new List<BigTwoPoker> ();
 		GeneratePlaySet (ref currentSet, currentHand, deck);
-		string cmd = deck.CommandQueue.CombinePokerListToCMD (currentSet);
+		string cmd = deck.CombinePokerListToCMD (currentSet);
 		return cmd;
 	}
 
 	private void GeneratePlaySet (ref List<BigTwoPoker> currentSet, List<BigTwoPoker> currentHand, BigTwoDeck deck) {
-		BigTwoCommandQueue commandQueue = deck.CommandQueue;
-		if (commandQueue.IsRoundPassed ()) {
+		if (BigTwoCommandQueue.Instance.IsRoundPassed ()) {
 			GetBestInHand (ref currentSet, currentHand, deck);
 			return;
 		}
-		List<BigTwoPoker> lastSet = commandQueue.GetLastValidPokerList ();
+		List<BigTwoPoker> lastSet = deck.GetLastPokerList ();
 		if (0 == lastSet.Count) {
 			GetBestInHand (ref currentSet, currentHand, deck);
 			return;

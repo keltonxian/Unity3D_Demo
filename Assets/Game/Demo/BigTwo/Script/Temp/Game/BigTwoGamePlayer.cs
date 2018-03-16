@@ -9,6 +9,10 @@ using DG.Tweening;
 
 public class BigTwoGamePlayer : BigTwoPlayer {
 
+	public enum PLAYER_SEAT {
+		DOWN, LEFT, UP, RIGHT,
+	}
+	private PLAYER_SEAT _seat;
 	public BigTwoDeck _deck;
 	public BigTwoAI _gameAI;
 	public Transform _pokerHandParent;
@@ -29,8 +33,13 @@ public class BigTwoGamePlayer : BigTwoPlayer {
 		}
 	}
 
+	public void Init (PLAYER_SEAT seat) {
+		_seat = seat;
+	}
+
 	public string NextPlayCMD () {
 		string cmd = _gameAI.GetPlayCommand (ListPokerInHand, _deck);
+		cmd = string.Format ("{0} {1} {2}", BigTwoCommandQueue.CMD_TYPE.PLAY_HAND.ToString (), _seat.ToString (), cmd);
 		return cmd;
 		// List<Poker> hand = new List<Poker> ();
 		// List<Poker> retPoker = prevPlayerHand;

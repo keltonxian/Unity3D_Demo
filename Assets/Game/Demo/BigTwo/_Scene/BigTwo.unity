@@ -369,7 +369,6 @@ GameObject:
   - component: {fileID: 181208297}
   - component: {fileID: 181208296}
   - component: {fileID: 181208295}
-  - component: {fileID: 181208298}
   m_Layer: 0
   m_Name: Deck
   m_TagString: Untagged
@@ -401,11 +400,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _pokerPrefab: {fileID: 1250607817649836, guid: df56d02565db04711a8c171854f16f8e,
     type: 2}
-  _listPlayer:
-  - {fileID: 1815275104}
-  - {fileID: 238696778}
-  - {fileID: 1143095469}
-  - {fileID: 1107397734}
   _isDoShuffleBeforeDealCard: 1
   _isAutoDeal: 0
 --- !u!4 &181208297
@@ -421,17 +415,6 @@ Transform:
   m_Father: {fileID: 64918494}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &181208298
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 181208294}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bd8fa4ca0698443f7a02b8a31add237d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &238696776
 GameObject:
   m_ObjectHideFlags: 0
@@ -1278,8 +1261,6 @@ GameObject:
   - component: {fileID: 1055828359}
   - component: {fileID: 1055828358}
   - component: {fileID: 1055828357}
-  - component: {fileID: 1055828363}
-  - component: {fileID: 1055828362}
   - component: {fileID: 1055828361}
   m_Layer: 0
   m_Name: GameCanvas
@@ -1377,34 +1358,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _deck: {fileID: 181208296}
-  _arrayPlayer:
-  - {fileID: 1815275104}
-  - {fileID: 238696778}
-  - {fileID: 1143095469}
-  - {fileID: 1107397734}
+  _playerSeatDown: {fileID: 1815275104}
+  _playerSeatLeft: {fileID: 238696778}
+  _playerSeatUp: {fileID: 1143095469}
+  _playerSeatRight: {fileID: 1107397734}
   _btnStart: {fileID: 1081093727}
---- !u!114 &1055828362
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1055828356}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bd8fa4ca0698443f7a02b8a31add237d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &1055828363
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1055828356}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6ed302817d1c146c7ae378a58afa2edb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1057162152
 GameObject:
   m_ObjectHideFlags: 0

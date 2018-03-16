@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(BigTwoCommandQueue))]
+
 [RequireComponent(typeof(BigTwoRule))]
 public class BigTwoDeck : MonoBehaviour {
 
@@ -13,16 +13,8 @@ public class BigTwoDeck : MonoBehaviour {
 		}
 	}
 	public GameObject _pokerPrefab;
-	public List<BigTwoGamePlayer> _listPlayer = new List<BigTwoGamePlayer> ();
 	public bool _isDoShuffleBeforeDealCard = true;
 	public bool _isAutoDeal = false;
-
-	private BigTwoCommandQueue _commandQueue;
-	public BigTwoCommandQueue CommandQueue {
-		get {
-			return _commandQueue;
-		}
-	}
 	private BigTwoRule _rule;
 	public BigTwoRule Rule {
 		get {
@@ -30,9 +22,7 @@ public class BigTwoDeck : MonoBehaviour {
 		}
 	}
 
-	public void InitDeck (CallbackType.CallbackV callback) {
-		_commandQueue = this.GetComponent<BigTwoCommandQueue> ();
-		_commandQueue.Init (this);
+	public void Init () {
 		_rule = this.GetComponent<BigTwoRule> ();
 		_rule.Init ();
 
@@ -55,7 +45,6 @@ public class BigTwoDeck : MonoBehaviour {
 				_listPoker.Add (poker);
 			}
 		}
-		callback ();
 	}
 
 	private void ShuffleDeck () {
@@ -71,20 +60,20 @@ public class BigTwoDeck : MonoBehaviour {
 		list.Clear ();
 	}
 
-	public float DealCard () {
+	public float DealCard (List<BigTwoGamePlayer> listPlayer) {
 		if (_isDoShuffleBeforeDealCard) {
 			ShuffleDeck ();
 		}
 
-		for (int i = 0; i < _listPlayer.Count; i++) {
-			BigTwoGamePlayer player = _listPlayer [i];
+		for (int i = 0; i < listPlayer.Count; i++) {
+			BigTwoGamePlayer player = listPlayer [i];
 			player.ClearPokerList ();
 		}
-		int pokerNumPerPlayer = _listPoker.Count / _listPlayer.Count;
+		int pokerNumPerPlayer = _listPoker.Count / listPlayer.Count;
 		int startIndex = 0;
 		int endIndex = pokerNumPerPlayer;
-		for (int i = 0; i < _listPlayer.Count; i++) {
-			BigTwoGamePlayer player = _listPlayer [i];
+		for (int i = 0; i < listPlayer.Count; i++) {
+			BigTwoGamePlayer player = listPlayer [i];
 			for (int j = startIndex; j < endIndex; j++) {
 				BigTwoPoker poker = _listPoker [j];
 				poker.gameObject.SetActive (true);
@@ -100,6 +89,53 @@ public class BigTwoDeck : MonoBehaviour {
 
 	public BigTwoRule GetRule () {
 		return _rule;
+	}
+
+	public List<BigTwoPoker> GetLastPokerList () {
+		string cmd = BigTwoCommandQueue.Instance.GetLastCMD ();	
+		List<string> listStr = BigTwoCommandQueue.Instance.SplitCMDToList (cmd);
+		return GetPokerListFromListStr (listStr);
+	}
+
+	private List<BigTwoPoker> GetPokerListFromListStr (List<string> listStr) {
+		List<BigTwoPoker> listPoker = new List<BigTwoPoker> ();
+		if (listStr.Count < 3) {
+			return listPoker;
+		}
+		for (int i = 0; i < listStr.Count; i++) {
+			string pokerStr = listStr [i];
+			string[] pokerData = pokerStr.Split (BigTwoCommandQueue.SPACE_CHAR_POKER);
+			if (pokerData.Length < 2) {
+				continue;
+			}
+			string pokerType = pokerData [0];
+			string pokerFace = pokerData [1];
+			BigTwoPoker poker = GetPokerByData (pokerType, pokerFace);
+			if (null != poker) {
+				listPoker.Add (poker);
+			}
+		}
+		return listPoker;
+	}
+
+	private BigTwoPoker GetPokerByData (string pokerType, string pokerFace) {
+		 for (int i = 0; i < _listPoker.Count; i++) {
+			 BigTwoPoker poker = _listPoker [i];
+			 if (pokerType == poker._pokerType.ToString () && pokerFace == poker._pokerFace.ToString ()) {
+				 return poker;
+			 }
+		 }
+		 return null;
+	}
+
+	public string CombinePokerListToCMD (List<BigTwoPoker> listPoker) {
+		string cmd = "";
+		for (int i = 0; i < listPoker.Count; i++) {
+			BigTwoPoker poker = listPoker [i];
+			string pokerStr = string.Format ("{0}{1}{2}", poker._pokerType.ToString (), BigTwoCommandQueue.SPACE_CHAR_POKER, poker._pokerFace.ToString ());
+			cmd = string.Format ("{0} {1}", cmd, pokerStr);
+		}
+		return cmd;
 	}
 
 }

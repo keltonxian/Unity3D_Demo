@@ -2,17 +2,56 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BigTwoCommandQueue : MonoBehaviour {
+public class BigTwoCommandQueue : SingletonKit<BigTwoCommandQueue> {
 
-	private BigTwoDeck _deck;
-
+	public const char SPACE_CHAR_POKER = '_';
+	public enum CMD_TYPE {
+		PLAY_HAND,
+	}
+	
 	private List<string> _listCMD = new List<string> ();
+	private List<string> _listActionCMD = new List<string> ();
 
-	public void Init (BigTwoDeck deck) {
-		_deck = deck;
+	public void Clear () {
+		_listCMD.Clear ();
+		_listActionCMD.Clear ();
 	}
 
-	public string GetLastValidCMD () {
+	public void AddCMD (string cmd) {
+		if (string.IsNullOrEmpty (cmd)) {
+			return;
+		}
+		_listCMD.Add (cmd);
+		_listActionCMD.Add (cmd);
+	}
+
+	public string GetLastActionCMD () {
+		if (0 == _listActionCMD.Count) {
+			return null;
+		}
+		for (int i = _listActionCMD.Count - 1; i >= 0; i--) {
+			string cmd = _listActionCMD [i];
+			if (!string.IsNullOrEmpty (cmd)) {
+				return cmd;
+			}
+		}
+		return null;
+	}
+
+	public void RemoveLastActionCMD () {
+		if (0 == _listActionCMD.Count) {
+			return;
+		}
+		for (int i = _listActionCMD.Count - 1; i >= 0; i--) {
+			string cmd = _listActionCMD [i];
+			if (!string.IsNullOrEmpty (cmd)) {
+				_listActionCMD.RemoveAt (i);
+				return;
+			}
+		}
+	}
+
+	public string GetLastCMD () {
 		if (0 == _listCMD.Count) {
 			return null;
 		}
@@ -25,52 +64,17 @@ public class BigTwoCommandQueue : MonoBehaviour {
 		return null;
 	}
 
-	public List<BigTwoPoker> GetLastValidPokerList () {
-		string cmd = GetLastValidCMD ();	
-		return SplitCMDToPokerList (cmd);
-	}
-
-	public string CombinePokerListToCMD (List<BigTwoPoker> listPoker) {
-		string cmd = "";
-		for (int i = 0; i < listPoker.Count; i++) {
-			BigTwoPoker poker = listPoker [i];
-			string pokerStr = string.Format ("{0}_{1}", poker._pokerType.ToString (), poker._pokerFace.ToString ());
-			cmd = string.Format ("{0} {1}", cmd, pokerStr);
-		}
-		return cmd;
-	}
-
-	private List<BigTwoPoker> SplitCMDToPokerList (string cmd) {
-		List<BigTwoPoker> listPoker = new List<BigTwoPoker> ();
+	public List<string> SplitCMDToList (string cmd) {
+		List<string> listStr = new List<string> ();
 		if (string.IsNullOrEmpty (cmd)) {
-			return listPoker;
+			return listStr;
 		}
-		string[] arrayPoker = cmd.Split (' ');
-		for (int i = 0; i < arrayPoker.Length; i++) {
-			string pokerStr = arrayPoker [i];
-			string[] pokerData = pokerStr.Split ('_');
-			if (pokerData.Length < 2) {
-				continue;
-			}
-			string pokerType = pokerData [0];
-			string pokerFace = pokerData [1];
-			BigTwoPoker poker = GetPokerByData (pokerType, pokerFace);
-			if (null != poker) {
-				listPoker.Add (poker);
-			}
+		string[] arrayStr = cmd.Split (' ');
+		for (int i = 0; i < arrayStr.Length; i++) {
+			string str = arrayStr [i];
+			listStr.Add (str);
 		}
-		return listPoker;
-	}
-
-	private BigTwoPoker GetPokerByData (string pokerType, string pokerFace) {
-		 List<BigTwoPoker> listPoker = _deck.ListPoker;
-		 for (int i = 0; i < listPoker.Count; i++) {
-			 BigTwoPoker poker = listPoker [i];
-			 if (pokerType == poker._pokerType.ToString () && pokerFace == poker._pokerFace.ToString ()) {
-				 return poker;
-			 }
-		 }
-		 return null;
+		return listStr;
 	}
 
 	public bool IsRoundPassed () {
