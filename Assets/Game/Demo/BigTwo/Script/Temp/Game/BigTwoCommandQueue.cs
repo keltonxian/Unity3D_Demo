@@ -10,6 +10,11 @@ public class BigTwoCommandQueue : SingletonKit<BigTwoCommandQueue> {
 	}
 	
 	private List<string> _listCMD = new List<string> ();
+	public List<string> ListCMD {
+		get {
+			return _listCMD;
+		}
+	}
 	private List<string> _listActionCMD = new List<string> ();
 
 	public void Clear () {
@@ -72,22 +77,11 @@ public class BigTwoCommandQueue : SingletonKit<BigTwoCommandQueue> {
 		string[] arrayStr = cmd.Split (' ');
 		for (int i = 0; i < arrayStr.Length; i++) {
 			string str = arrayStr [i];
-			listStr.Add (str);
-		}
-		return listStr;
-	}
-
-	public bool IsRoundPassed () {
-		if (_listCMD.Count < 4) {
-			return false;
-		}	
-		bool isAllPassed = true;
-		for (int i = _listCMD.Count - 1; i >= _listCMD.Count - 3; i--) {
-			if (!string.IsNullOrEmpty (_listCMD [i])) {
-				isAllPassed = false;
+			if (!string.IsNullOrEmpty(str)) {
+				listStr.Add (str);
 			}
 		}
-		return isAllPassed;
+		return listStr;
 	}
 
 }

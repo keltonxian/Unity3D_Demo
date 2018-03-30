@@ -12,15 +12,15 @@ public class BigTwoAISimple : BigTwoAI {
 	}
 
 	private void GeneratePlaySet (ref List<BigTwoPoker> currentSet, List<BigTwoPoker> currentHand, BigTwoDeck deck) {
-		if (BigTwoCommandQueue.Instance.IsRoundPassed ()) {
+		if (deck.IsFirstPlay () || deck.IsRoundPassed ()) {
 			GetBestInHand (ref currentSet, currentHand, deck);
 			return;
 		}
-		List<BigTwoPoker> lastSet = deck.GetLastPokerList ();
+		List<BigTwoPoker> lastSet = deck.GetLastValidPlayPokerList ();
 		if (0 == lastSet.Count) {
-			GetBestInHand (ref currentSet, currentHand, deck);
 			return;
 		}
+		GetBiggerSet (ref currentSet, currentHand, lastSet, deck);
 	}
 
 	private void GetBestInHand (ref List<BigTwoPoker> currentSet, List<BigTwoPoker> currentHand, BigTwoDeck deck) {

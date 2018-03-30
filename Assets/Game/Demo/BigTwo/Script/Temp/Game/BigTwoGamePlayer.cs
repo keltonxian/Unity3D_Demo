@@ -64,6 +64,24 @@ public class BigTwoGamePlayer : BigTwoPlayer {
 		return (0 == ListPokerInHand.Count);
 	}
 
+	public void PlayHandToSet (List<string> listStr, CallbackType.CallbackV doneCallback) {
+		Sequence seq = DOTween.Sequence ();
+		seq.AppendCallback (() => {
+			ClearListPokerInSet ();
+			List<BigTwoPoker> listPoker = _deck.GetPokerListFromListStr (listStr);
+			for (int i = 0; i < listPoker.Count; i++) {
+				BigTwoPoker poker = listPoker [i];
+				InsertPokerToSet (poker);
+			}
+			SortListPokerInHand (true);
+			ShowListPokerInSet ();
+		});
+		seq.AppendInterval (2f);
+		seq.AppendCallback (() => {
+			doneCallback ();
+		});
+	}
+
 	private void ClearListPokerInHand () {
 		for (int i = 0; i < _listPokerInHand.Count; i++) {
 			BigTwoPoker poker = _listPokerInHand [i];
@@ -142,6 +160,7 @@ public class BigTwoGamePlayer : BigTwoPlayer {
 		poker.transform.localPosition = Vector3.zero;
 		poker.transform.localScale = Vector3.one;
 		_listPokerInSet.Add (poker);
+		_listPokerInHand.Remove (poker);
 
 		_deck.GetRule ().SortPokerList (_listPokerInSet);
 	}

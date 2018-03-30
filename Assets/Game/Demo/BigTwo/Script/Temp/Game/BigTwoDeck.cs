@@ -91,18 +91,66 @@ public class BigTwoDeck : MonoBehaviour {
 		return _rule;
 	}
 
-	public List<BigTwoPoker> GetLastPokerList () {
-		string cmd = BigTwoCommandQueue.Instance.GetLastCMD ();	
-		List<string> listStr = BigTwoCommandQueue.Instance.SplitCMDToList (cmd);
+	public bool IsFirstPlay () {
+		List<string> listCMD = BigTwoCommandQueue.Instance.ListCMD;
+		bool isFirstPlay = true;
+		for (int i = listCMD.Count - 1; i >= 0; i--) {
+			string cmd = listCMD [i];
+			List<string> listStr = BigTwoCommandQueue.Instance.SplitCMDToList (cmd);
+			string actionStr = listStr [0];
+			if (actionStr == BigTwoCommandQueue.CMD_TYPE.PLAY_HAND.ToString ()) {
+				isFirstPlay = false;
+				break;
+			}
+		}
+		return isFirstPlay;
+	}
+
+	public bool IsRoundPassed () {
+		List<string> listCMD = BigTwoCommandQueue.Instance.ListCMD;
+		int countPlayCMD = 0;
+		int countPassCMD = 0;
+		bool isAllPassed = false;
+		for (int i = listCMD.Count - 1; i >= 0; i--) {
+			string cmd = listCMD [i];
+			List<string> listStr = BigTwoCommandQueue.Instance.SplitCMDToList (cmd);
+			string actionStr = listStr [0];
+			if (actionStr == BigTwoCommandQueue.CMD_TYPE.PLAY_HAND.ToString ()) {
+				countPlayCMD++;
+				if (2 == listStr.Count) {
+					countPassCMD++;
+				}
+			}
+			if (3 == countPlayCMD && countPassCMD == countPlayCMD) {
+				isAllPassed = true;
+				break;
+			}
+		}
+		return isAllPassed;
+	}
+
+	public List<BigTwoPoker> GetLastValidPlayPokerList () {
+		List<string> listStr = new List<string> ();
+		List<string> listCMD = BigTwoCommandQueue.Instance.ListCMD;
+		for (int i = listCMD.Count - 1; i >= 0; i--) {
+			string cmd = listCMD [i];
+			listStr = BigTwoCommandQueue.Instance.SplitCMDToList (cmd);
+			string actionStr = listStr [0];
+			if (actionStr == BigTwoCommandQueue.CMD_TYPE.PLAY_HAND.ToString ()) {
+				if (listStr.Count > 2) {
+					break;
+				}
+			}
+		}
 		return GetPokerListFromListStr (listStr);
 	}
 
-	private List<BigTwoPoker> GetPokerListFromListStr (List<string> listStr) {
+	public List<BigTwoPoker> GetPokerListFromListStr (List<string> listStr) {
 		List<BigTwoPoker> listPoker = new List<BigTwoPoker> ();
 		if (listStr.Count < 3) {
 			return listPoker;
 		}
-		for (int i = 0; i < listStr.Count; i++) {
+		for (int i = 2; i < listStr.Count; i++) {
 			string pokerStr = listStr [i];
 			string[] pokerData = pokerStr.Split (BigTwoCommandQueue.SPACE_CHAR_POKER);
 			if (pokerData.Length < 2) {

@@ -113,7 +113,7 @@ public class BigTwoLogic : MonoBehaviour {
 			return;
 		}
 		_isInAction = true;
-		Debug.Log ("Cmd: "+cmd);
+		Debug.Log (string.Format ("Cmd[{0}]", cmd));
 		List<string> listStr = BigTwoCommandQueue.Instance.SplitCMDToList (cmd);
 		string actionStr = listStr [0];
 		if (actionStr == BigTwoCommandQueue.CMD_TYPE.PLAY_HAND.ToString ()) {
@@ -146,6 +146,10 @@ public class BigTwoLogic : MonoBehaviour {
 		if (null == player) {
 			return;
 		}
+		player.PlayHandToSet (listStr, () => {
+			NextPlayer ();
+			_isInAction = false;
+		});
 	}
 
 }
