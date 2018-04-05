@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 
 public class BigTwoPoker : MonoBehaviour {
 
@@ -17,6 +18,17 @@ public class BigTwoPoker : MonoBehaviour {
 	public SpriteRenderer _faceSR = null;
 	public SpriteRenderer _backSR = null;
 
+	private bool _isSelected = false;
+	public bool IsSelected {
+		get {
+			return _isSelected;
+		}
+		set {
+			SetSelected (value);
+		}
+	}
+	private bool _isAnimating = false;
+	private Vector3 _faceDefaultPos;
 	private bool _isTouchEnabled = true;
 	public bool IsTouchEnabled {
 		get {
@@ -29,6 +41,7 @@ public class BigTwoPoker : MonoBehaviour {
 
 	public void Init () {
 		SetFace ();
+		_faceDefaultPos = _faceSR.transform.localPosition;
 	}
 
 	public void SetBackVisible (bool isVisible) {
@@ -56,6 +69,27 @@ public class BigTwoPoker : MonoBehaviour {
 			_faceSR.GetComponent<SpriteRenderer> ().sprite = sprite; 
 		}, () => {
 		});
+	}
+
+	public void SetSelected (bool isSelected) {
+		if (!IsTouchEnabled) {
+		}
+		if (_isAnimating) {
+			return;
+		}
+		if (isSelected == _isSelected) {
+			return;
+		}
+		_isAnimating = true;
+		float toY = _faceDefaultPos.y;
+		if (!_isSelected) {
+			toY += 0.2f;
+		}
+		_faceSR.transform.DOKill ();
+		_faceSR.transform.DOLocalMoveY (toY, 0.15f).SetEase (Ease.Linear).OnComplete (() => {
+			_isAnimating = false;
+		});
+		_isSelected = !_isSelected;
 	}
 
 }

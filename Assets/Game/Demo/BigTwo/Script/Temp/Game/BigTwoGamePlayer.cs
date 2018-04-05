@@ -15,6 +15,10 @@ public class BigTwoGamePlayer : BigTwoPlayer {
 	private PLAYER_SEAT _seat;
 	public BigTwoDeck _deck;
 	public BigTwoAI _gameAI;
+	public bool _isHandInput = false;
+	public BigTwoPokerHandInput _handInput;
+	public GameObject _roundBtns;
+	public RectTransform _roundTipNotValid;
 	public Transform _pokerHandParent;
 	private List<BigTwoPoker> _listPokerInHand = new List<BigTwoPoker> ();
 	public List<BigTwoPoker> ListPokerInHand {
@@ -32,15 +36,61 @@ public class BigTwoGamePlayer : BigTwoPlayer {
 			return _listPokerInSet;
 		}
 	}
+	private CallbackType.CallbackS _nextPlayCMDCallback;
 
 	public void Init (PLAYER_SEAT seat) {
 		_seat = seat;
+		if (_isHandInput) {
+			_handInput.Init ();
+		}
 	}
 
-	public string NextPlayCMD () {
+	public void OnClickPlayHand () {
+		List<BigTwoPoker> listPoker = new List<BigTwoPoker> ();
+		for (int i = 0; i < _listPokerInHand.Count; i++) {
+			BigTwoPoker poker = _listPokerInHand [i];
+			if (poker.IsSelected) {
+				listPoker.Add (poker);
+			}
+		}
+		if (!_deck.IsFirstPlay () && !_deck.IsRoundPassed ()) {
+			List<BigTwoPoker> lastSet = _deck.GetLastValidPlayPokerList ();
+			if (lastSet.Count > 0) {
+				BigTwoRule.CompareResult result = _deck.Rule.IsPokerListBigger (listPoker, lastSet);
+				if (result != BigTwoRule.CompareResult.BIGGER) {
+					_roundTipNotValid.gameObject.SetActive (true);
+					_roundTipNotValid.localScale = Vector3.zero;
+					Sequence seq = DOTween.Sequence ();
+					seq.Append (_roundTipNotValid.DOScale (1f, 0.5f).SetEase (Ease.OutBack));
+					seq.AppendCallback (() => {
+						_roundTipNotValid.gameObject.SetActive (false);
+					});
+					return;
+				}
+			}
+		}
+		string cmd = _deck.CombinePokerListToCMD (listPoker);
+		_roundBtns.SetActive (false);
+		SendPlayHandCMD (cmd);
+	}
+
+	public void OnClickTipHand () {
+		
+	}
+
+	private void SendPlayHandCMD (string handCMD) {
+		string cmd = string.Format ("{0} {1} {2}", BigTwoCommandQueue.CMD_TYPE.PLAY_HAND.ToString (), _seat.ToString (), handCMD);
+		_nextPlayCMDCallback (cmd);
+	}
+
+	public void NextPlayCMD (CallbackType.CallbackS callback) {
+		_nextPlayCMDCallback = callback;
+		if (_isHandInput) {
+			_roundBtns.SetActive (true);
+			return;
+		}
 		string cmd = _gameAI.GetPlayCommand (ListPokerInHand, _deck);
-		cmd = string.Format ("{0} {1} {2}", BigTwoCommandQueue.CMD_TYPE.PLAY_HAND.ToString (), _seat.ToString (), cmd);
-		return cmd;
+		SendPlayHandCMD (cmd);
 		// List<Poker> hand = new List<Poker> ();
 		// List<Poker> retPoker = prevPlayerHand;
 		// bool isPass = true;

@@ -76,8 +76,9 @@ public class BigTwoLogic : MonoBehaviour {
 			_btnStart.SetActive (true);
 			return;
 		}
-		string cmd = player.NextPlayCMD ();
-		BigTwoCommandQueue.Instance.AddCMD (cmd);
+		player.NextPlayCMD ((string cmd) => {
+			BigTwoCommandQueue.Instance.AddCMD (cmd);
+		});
 
 		// player.PlayAHand (prevPlayerHand, (List<Poker> hand, bool isPass)=>{
 		// 	Sequence sequence = DOTween.Sequence();
