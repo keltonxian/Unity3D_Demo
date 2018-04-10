@@ -53,18 +53,16 @@ public class BigTwoGamePlayer : BigTwoPlayer {
 				listPoker.Add (poker);
 			}
 		}
+		if (0 == listPoker.Count && (_deck.IsFirstPlay () || _deck.IsRoundPassed ())) {
+			TipNotValid ();
+			return;
+		}
 		if (!_deck.IsFirstPlay () && !_deck.IsRoundPassed ()) {
 			List<BigTwoPoker> lastSet = _deck.GetLastValidPlayPokerList ();
 			if (lastSet.Count > 0) {
 				BigTwoRule.CompareResult result = _deck.Rule.IsPokerListBigger (listPoker, lastSet);
 				if (result != BigTwoRule.CompareResult.BIGGER) {
-					_roundTipNotValid.gameObject.SetActive (true);
-					_roundTipNotValid.localScale = Vector3.zero;
-					Sequence seq = DOTween.Sequence ();
-					seq.Append (_roundTipNotValid.DOScale (1f, 0.5f).SetEase (Ease.OutBack));
-					seq.AppendCallback (() => {
-						_roundTipNotValid.gameObject.SetActive (false);
-					});
+					TipNotValid ();
 					return;
 				}
 			}
@@ -74,8 +72,39 @@ public class BigTwoGamePlayer : BigTwoPlayer {
 		SendPlayHandCMD (cmd);
 	}
 
+	private void TipNotValid () {
+		_roundTipNotValid.gameObject.SetActive (true);
+		_roundTipNotValid.localScale = Vector3.zero;
+		Sequence seq = DOTween.Sequence ();
+		seq.Append (_roundTipNotValid.DOScale (1f, 0.5f).SetEase (Ease.OutBack));
+		seq.AppendCallback (() => {
+			_roundTipNotValid.gameObject.SetActive (false);
+		});
+	}
+
+	public void OnClickPass () {
+		if (_deck.IsFirstPlay () || _deck.IsRoundPassed ()) {
+			TipNotValid ();
+			return;
+		}
+		_roundBtns.SetActive (false);
+		SendPlayHandCMD ("");
+	}
+
 	public void OnClickTipHand () {
-		
+		string cmd = _gameAI.GetPlayCommand (ListPokerInHand, _deck);
+		List<string> listStr = BigTwoCommandQueue.Instance.SplitCMDToList (cmd);
+		List<BigTwoPoker> listPoker = _deck.GetPokerListFromPokerCMDListStr (listStr);
+		for (int i = 0; i < _listPokerInHand.Count; i++) {
+			BigTwoPoker pokerInHand = _listPokerInHand [i];
+			for (int j = 0; j < listPoker.Count; j++) {
+				BigTwoPoker pokerInTip = listPoker [j];
+				if (pokerInHand == pokerInTip) {
+					pokerInHand.IsSelected = true;
+					break;
+				}
+			}
+		}
 	}
 
 	private void SendPlayHandCMD (string handCMD) {
@@ -84,6 +113,7 @@ public class BigTwoGamePlayer : BigTwoPlayer {
 	}
 
 	public void NextPlayCMD (CallbackType.CallbackS callback) {
+		ClearListPokerInSet ();
 		_nextPlayCMDCallback = callback;
 		if (_isHandInput) {
 			_roundBtns.SetActive (true);
@@ -111,14 +141,19 @@ public class BigTwoGamePlayer : BigTwoPlayer {
 	}
 
 	public bool HasPlayAll () {
+		Debug.Log (string.Format ("Name[{0}] Hand[{1}]", gameObject.name, ListPokerInHand.Count));
 		return (0 == ListPokerInHand.Count);
 	}
 
 	public void PlayHandToSet (List<string> listStr, CallbackType.CallbackV doneCallback) {
+		List<BigTwoPoker> listPoker = _deck.GetPokerListFromPlayCMDListStr (listStr);
+		float timeWait = 0.2f;
+		if (listPoker.Count > 0) {
+			timeWait = 1.2f;
+		}
 		Sequence seq = DOTween.Sequence ();
 		seq.AppendCallback (() => {
 			ClearListPokerInSet ();
-			List<BigTwoPoker> listPoker = _deck.GetPokerListFromListStr (listStr);
 			for (int i = 0; i < listPoker.Count; i++) {
 				BigTwoPoker poker = listPoker [i];
 				InsertPokerToSet (poker);
@@ -126,7 +161,7 @@ public class BigTwoGamePlayer : BigTwoPlayer {
 			SortListPokerInHand (true);
 			ShowListPokerInSet ();
 		});
-		seq.AppendInterval (2f);
+		seq.AppendInterval (timeWait);
 		seq.AppendCallback (() => {
 			doneCallback ();
 		});
@@ -157,8 +192,9 @@ public class BigTwoGamePlayer : BigTwoPlayer {
 		_deck.GetRule ().SortPokerList (_listPokerInHand);
 		for (int i = 0; i < pokerCount; i++) {
 			BigTwoPoker poker = _listPokerInHand [i];
+			poker.transform.localScale = Vector3.one * size.y / poker.transform.GetComponent<BoxCollider2D> ().size.y;
 			if (i == 0) {
-				float width = poker.transform.GetComponent<BoxCollider2D> ().size.x;
+				float width = poker.transform.GetComponent<BoxCollider2D> ().size.x * poker.transform.localScale.x;
 				if (_isOverlap) {
 					startX = 0;
 					gapx = 0f;
@@ -185,10 +221,6 @@ public class BigTwoGamePlayer : BigTwoPlayer {
 			poker.SetBackVisible (!_isShowFace);
 		}	
 		_listCountText.UpdateNumber (_listPokerInHand.Count);
-	}
-
-	public void ClearTable () {
-//		_set.ClearPokerList ();
 	}
 
 	public void ClearPokerList () {
@@ -223,8 +255,9 @@ public class BigTwoGamePlayer : BigTwoPlayer {
 		float gapx = 0f;
 		for (int i = 0; i < pokerCount; i++) {
 			BigTwoPoker poker = _listPokerInSet [i];
+			poker.transform.localScale = Vector3.one * size.y / poker.transform.GetComponent<BoxCollider2D> ().size.y;
 			if (i == 0) {
-				float width = poker.transform.GetComponent<BoxCollider2D> ().size.x;
+				float width = poker.transform.GetComponent<BoxCollider2D> ().size.x * poker.transform.localScale.x;
 				startX += width / 2;
 				gapx = (size.x - width) / (pokerCount - 1);
 				if (gapx > width) {

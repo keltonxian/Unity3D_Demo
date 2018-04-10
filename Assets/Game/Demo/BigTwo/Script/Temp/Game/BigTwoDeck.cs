@@ -37,9 +37,14 @@ public class BigTwoDeck : MonoBehaviour {
 			for (int j = 0; j < faceArray.Length; j++) {
 				BigTwoPoker.FACE pokerFace = faceArray [j];
 				BigTwoPoker poker = Instantiate (_pokerPrefab).GetComponent<BigTwoPoker> ();
+				poker.gameObject.name = _pokerPrefab.name;
 				poker._pokerType = pokerType;
 				poker._pokerFace = pokerFace;
+				Vector3 pos = poker.transform.localPosition;
+				Vector3 scale = poker.transform.localScale;
 				poker.transform.SetParent (transform);
+				poker.transform.localPosition = pos;
+				poker.transform.localScale = scale;
 				poker.Init ();
 				poker.SetBackVisible (true);
 				_listPoker.Add (poker);
@@ -61,6 +66,8 @@ public class BigTwoDeck : MonoBehaviour {
 	}
 
 	public float DealCard (List<BigTwoGamePlayer> listPlayer) {
+		BigTwoCommandQueue.Instance.Clear ();
+		
 		if (_isDoShuffleBeforeDealCard) {
 			ShuffleDeck ();
 		}
@@ -78,6 +85,7 @@ public class BigTwoDeck : MonoBehaviour {
 				BigTwoPoker poker = _listPoker [j];
 				poker.gameObject.SetActive (true);
 				poker.Reset ();
+				poker.SetBackVisible (true);
 				player.InsertPokerToHand (poker);
 			}
 			player.SortListPokerInHand ();
@@ -142,15 +150,29 @@ public class BigTwoDeck : MonoBehaviour {
 				}
 			}
 		}
-		return GetPokerListFromListStr (listStr);
+		return GetPokerListFromPlayCMDListStr (listStr);
 	}
 
-	public List<BigTwoPoker> GetPokerListFromListStr (List<string> listStr) {
-		List<BigTwoPoker> listPoker = new List<BigTwoPoker> ();
+	// e.g.
+	// listStr: [PLAY_HAND DOWN CLUBS_FOUR]
+	public List<BigTwoPoker> GetPokerListFromPlayCMDListStr (List<string> listStr) {
 		if (listStr.Count < 3) {
+			List<BigTwoPoker> listPoker = new List<BigTwoPoker> ();
 			return listPoker;
 		}
+		List<string> listPokerCMD = new List<string> ();
 		for (int i = 2; i < listStr.Count; i++) {
+			string pokerStr = listStr [i];
+			listPokerCMD.Add (pokerStr);
+		}
+		return GetPokerListFromPokerCMDListStr (listPokerCMD);
+	}
+
+	// e.g.
+	// listStr: [HEARTS_FIVE HEARTS_SIX]
+	public List<BigTwoPoker> GetPokerListFromPokerCMDListStr (List<string> listStr) {
+		List<BigTwoPoker> listPoker = new List<BigTwoPoker> ();
+		for (int i = 0; i < listStr.Count; i++) {
 			string pokerStr = listStr [i];
 			string[] pokerData = pokerStr.Split (BigTwoCommandQueue.SPACE_CHAR_POKER);
 			if (pokerData.Length < 2) {
@@ -164,7 +186,7 @@ public class BigTwoDeck : MonoBehaviour {
 			}
 		}
 		return listPoker;
-	}
+	} 
 
 	private BigTwoPoker GetPokerByData (string pokerType, string pokerFace) {
 		 for (int i = 0; i < _listPoker.Count; i++) {

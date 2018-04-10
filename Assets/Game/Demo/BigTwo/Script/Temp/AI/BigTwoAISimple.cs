@@ -29,24 +29,18 @@ public class BigTwoAISimple : BigTwoAI {
 	}
 
 	private void GetBiggerSet (ref List<BigTwoPoker> currentSet, List<BigTwoPoker> currentHand, List<BigTwoPoker> lastSet, BigTwoDeck deck) {
-		// TODO delete
-		if (lastSet.Count != 1) {
+		if (1 == lastSet.Count) {
+			GetBiggerSetForSingle (WEIGHT.ONE, ref currentSet, currentHand, lastSet, deck);
 			return;
 		}
-		// ----
-		BigTwoPoker lastPoker = lastSet [0];
-		BigTwoPoker targetPoker = null;
-		for (int i = 0; i < currentHand.Count; i++) {
-			BigTwoPoker poker = currentHand [i];
-			if (BigTwoRule.CompareResult.BIGGER ==  deck.Rule.IsPokerBigger (poker, lastPoker)) {
-				targetPoker = poker;
-				break;
-			}
-		}
-		if (null == targetPoker) {
+		if (2 == lastSet.Count) {
+			GetBiggerSetForPair (WEIGHT.ONE, ref currentSet, currentHand, lastSet, deck);
 			return;
 		}
-		currentSet.Add (targetPoker);
+		if (3 == lastSet.Count) {
+			GetBiggerSetForThree (WEIGHT.ONE, ref currentSet, currentHand, lastSet, deck);
+			return;
+		}
 	}
 
 }

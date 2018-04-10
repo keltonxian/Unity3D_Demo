@@ -72,36 +72,9 @@ public class BigTwoLogic : MonoBehaviour {
 			_playerIndex = 0;
 		}
 		BigTwoGamePlayer player = _listPlayer [_playerIndex];
-		if (player.HasPlayAll ()) {
-			_btnStart.SetActive (true);
-			return;
-		}
 		player.NextPlayCMD ((string cmd) => {
 			BigTwoCommandQueue.Instance.AddCMD (cmd);
 		});
-
-		// player.PlayAHand (prevPlayerHand, (List<Poker> hand, bool isPass)=>{
-		// 	Sequence sequence = DOTween.Sequence();
-		// 	sequence.PrependInterval (1f);
-		// 	sequence.AppendCallback (()=>{
-		// 		if (isPass) {
-		// 			_playCount++;
-		// 		} else {
-		// 			_playCount = 0;
-		// 		}
-		// 		if (_playCount == _arrayPlayer.Length - 1) {
-		// 			_playCount = 0;
-		// 			hand = null;
-		// 		}
-		// 		NextPlayer (hand);
-		// 	});
-		// });
-
-		//		if (_playerIndex > 0) {
-		//			_btnPlay.SetActive (false);
-		//			return;
-		//		}
-		//		_btnPlay.SetActive (true);
 	}
 
 	private void CheckCMD () {
@@ -148,6 +121,10 @@ public class BigTwoLogic : MonoBehaviour {
 			return;
 		}
 		player.PlayHandToSet (listStr, () => {
+			if (player.HasPlayAll ()) {
+				_btnStart.SetActive (true);
+				return;
+			}
 			NextPlayer ();
 			_isInAction = false;
 		});

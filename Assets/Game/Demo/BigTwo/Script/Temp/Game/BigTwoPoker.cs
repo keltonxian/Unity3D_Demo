@@ -49,6 +49,8 @@ public class BigTwoPoker : MonoBehaviour {
 	}
 
 	public void Reset () {
+		IsSelected = false;
+		IsTouchEnabled = false;
 	}
 
 	private void SetFace () {

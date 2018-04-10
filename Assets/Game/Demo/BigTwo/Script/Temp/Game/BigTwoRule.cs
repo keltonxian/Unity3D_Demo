@@ -90,7 +90,7 @@ public class BigTwoRule : MonoBehaviour {
 		return CompareResult.SMALLER;
 	}
 
-	private CompareResult IsPairBigger (List<BigTwoPoker> listA, List<BigTwoPoker> listB) {
+	public CompareResult IsPairBigger (List<BigTwoPoker> listA, List<BigTwoPoker> listB) {
 		if (listA.Count != 2 || listB.Count != 2) {
 			return CompareResult.INVALID;
 		}
@@ -122,7 +122,7 @@ public class BigTwoRule : MonoBehaviour {
 		return CompareResult.INVALID;
 	}
 
-	private CompareResult IsThreeBigger (List<BigTwoPoker> listA, List<BigTwoPoker> listB) {
+	public CompareResult IsThreeBigger (List<BigTwoPoker> listA, List<BigTwoPoker> listB) {
 		if (listA.Count != 3 || listB.Count != 3) {
 			return CompareResult.INVALID;
 		}
